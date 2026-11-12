@@ -2,9 +2,13 @@ name: Update Git Koi
 
 on:
   schedule:
-    # Runs every day at midnight UTC
-    - cron: '0 0 * * *'
-  # Allows you to run the workflow manually from the Actions tab
+    # Runs just after midnight UTC every day
+    - cron: '5 0 * * *'
+  # Runs whenever you edit this workflow file
+  push:
+    paths:
+      - '.github/workflows/git-koi.yml'
+  # Allows manual runs from the Actions tab
   workflow_dispatch:
 
 permissions:
@@ -18,5 +22,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate Git Koi
-        uses: yalongwastaken/git-profile-koi@v1.0.2
+        uses: yalongwastaken/git-koi@v1
+        with:
+          # Optional: choose white, black, asagi, tea, gold, or platinum
+          body: white
+          output-dir: koi
 
+      - name: Commit koi if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add koi/koi.gif koi/koi.png koi/preview.html
+          git diff --staged --quiet || git commit -m "chore: update git koi"
+          git push
